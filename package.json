@@ -1,0 +1,38 @@
+{
+  "name": "rag-saas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json",
+    "dev:receiver": "node --experimental-strip-types --env-file=.env src/receiver/server.ts",
+    "dev:worker": "node --experimental-strip-types --env-file=.env src/worker.ts",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "web:dev": "vite",
+    "web:build": "vite build"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@pinecone-database/pinecone": "^4.0.0",
+    "hono": "^4.6.14",
+    "openai": "^4.77.0",
+    "pg": "^8.13.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.15",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "typescript": "^5.7.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "vite": "^6.0.5"
+  }
+}
