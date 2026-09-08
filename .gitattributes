@@ -1,0 +1,10 @@
+# Ces fichiers sont lus par Linux lors de la construction de l'image : des fins
+# de ligne CRLF introduites par Windows peuvent casser le build ou les scripts.
+* text=auto eol=lf
+
+Dockerfile      text eol=lf
+Caddyfile       text eol=lf
+.dockerignore   text eol=lf
+*.sh            text eol=lf
+*.yml           text eol=lf
+*.sql           text eol=lf

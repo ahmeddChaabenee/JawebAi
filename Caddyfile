@@ -1,0 +1,21 @@
+{$DOMAIN} {
+	encode gzip
+
+	# Le recepteur sert l'API, les webhooks et l'interface React.
+	reverse_proxy receiver:8787
+
+	# Meta signe ses livraisons ; l'en-tete doit arriver intact.
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		-Server
+	}
+
+	log {
+		output file /data/access.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}

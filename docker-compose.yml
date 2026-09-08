@@ -1,0 +1,57 @@
+# Trois conteneurs : le recepteur, le worker, et Caddy en frontal.
+#
+# Les secrets viennent du fichier .env de la machine, jamais de l'image :
+# une image poussee dans un registre ne doit contenir aucun identifiant.
+
+services:
+  receiver:
+    build: .
+    command: ["node", "src/receiver/server.ts"]
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+    expose:
+      - "8787"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8787/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  worker:
+    build: .
+    command: ["node", "src/worker.ts"]
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+    # Le worker cesse de reserver de nouveaux evenements des le SIGTERM, mais
+    # termine celui en cours. Une generation prend 5 a 15 s ; le delai de grace
+    # par defaut de Docker est de 10 s, ce qui le tuerait en plein traitement et
+    # laisserait l'evenement bloque en statut 'processing'.
+    stop_grace_period: 45s
+    depends_on:
+      - receiver
+
+  # Caddy obtient et renouvelle le certificat Let's Encrypt tout seul, a partir
+  # du seul nom de domaine. Pas de certbot, pas de cron de renouvellement.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?definir DOMAIN dans .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - receiver
+
+volumes:
+  caddy_data:
+  caddy_config:

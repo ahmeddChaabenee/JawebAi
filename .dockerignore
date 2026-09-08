@@ -1,0 +1,10 @@
+node_modules
+web/dist
+web/node_modules
+.env
+.env.*
+!.env.example
+.git
+test
+*.md
+db/dev
