@@ -58,9 +58,17 @@ export function assertProductionSafety(): void {
       "ADMIN_TOKEN est obligatoire en production : sans lui, la console d'administration est ouverte.",
     );
   }
-  if (config.isProduction && !config.metaAppSecret) {
-    throw new Error(
-      'META_APP_SECRET est obligatoire en production : sans lui, les webhooks Meta ne sont pas verifies.',
-    );
-  }
+}
+
+/**
+ * Peut-on accepter des webhooks Meta ?
+ *
+ * En production sans secret, la reponse est non : une signature non verifiee
+ * laisse n'importe qui injecter de faux messages. Mais plutot que de refuser
+ * de demarrer, on desactive uniquement ces routes -- le widget web et la
+ * console continuent de fonctionner. On echoue sur la fonctionnalite
+ * concernee, pas sur le service entier.
+ */
+export function messengerEnabled(): boolean {
+  return Boolean(config.metaAppSecret) || !config.isProduction;
 }

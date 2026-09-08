@@ -65,6 +65,15 @@ export function createReceiver(options: ReceiverOptions) {
 
   app.get('/health', (c) => c.json({ ok: true }));
 
+  // Sans secret d'application en production, les routes Messenger ne sont pas
+  // exposees du tout : mieux vaut une fonctionnalite absente qu'un endpoint qui
+  // accepte n'importe quelle requete non signee.
+  const metaRoutesEnabled = Boolean(metaAppSecret) || process.env['NODE_ENV'] !== 'production';
+  if (!metaRoutesEnabled) {
+    console.warn('[receiver] META_APP_SECRET absent : routes Messenger desactivees');
+    return app;
+  }
+
   // -------------------------------------------------------------------
   //  Messenger : handshake de verification de l'abonnement
   // -------------------------------------------------------------------
